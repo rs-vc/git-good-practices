@@ -32,7 +32,7 @@ $ git push -u origin main
 
 
 ### Pull changes from remote repo(i.e. upstream branch) after committing some changes in local repo(i.e. local branch)
-When working on a feature branch, often we see that corresponding upstream branch has been updated. And sometimes, we feel the need to include the changes of updated upstream branch into our feature branch. For that, we can just do `$git pull @{u}`, or `$git pull --rebase @{u}`, but `git pull` has a problem here, and that is, it creates a new merge commit as it's a 3-way merge and we don't want that, cause, we want our git history to be clean and very much readable. So, we need a proper way to include upstream changes into our feature branch.  
+When working on a feature branch, often we see that corresponding upstream branch has been updated. And sometimes, we feel the need to include the changes of updated upstream branch into our feature branch. For that, we can just do `$git pull`, or `$git pull --rebase`, but `git pull` has a problem here, and that is, it creates a new merge commit as it's a 3-way merge and we don't want that, cause, we want our git history to be clean and very much readable. So, we need a proper way to include upstream changes into our feature branch.  
   
 To, solve the problem, we can fetch the upstream changes and then, at first try to do a `--ff-only` merge. If that's not possible, then we try `rebase with preserve merges` i.e. `rebase --preserve-merges`, and also verify the merge using `log`, so that, we may ensure everything is okay.
 
