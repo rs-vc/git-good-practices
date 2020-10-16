@@ -4,8 +4,8 @@ best practices or proven ways for using git in light of various circumstances
 ## Convention used
 Some conventions have been used to properly describe how to use git in a better way to solve problems.  
 
-1. origin: to denote the remote repository of local repository
-2. upstream: to denote the remote repository which has been forked to create the current repository
+1. `origin`: to denote the remote repository of local repository
+2. `upstream`: to denote the remote repository which has been forked to create the current repository
 
 
 ## Proven ways
@@ -31,11 +31,20 @@ $ git push -u origin main
 ```
 
 
-### Pull changes from remote repository after committing some changes in local repo
+### Pull changes from remote repo(i.e. upstream branch) after committing some changes in local repo(i.e. local branch)
+When working on a feature branch, often we see that corresponding upstream branch has been updated. And sometimes, we feel the need to include the changes of updated upstream branch into our feature branch. For that, we can just do `$git pull @{u}`, or `$git pull --rebase @{u}`, but `git pull` has a problem here, and that is, it creates a new merge commit as it's a 3-way merge and we don't want that, cause, we want our git history to be clean and very much readable. So, we need a proper way to include upstream changes into our feature branch.  
+  
+To, solve the problem, we can fetch the upstream changes and then, at first try to do a `--ff-only` merge. If that's not possible, then we try `rebase with preserve merges` i.e. `rebase --preserve-merges`, and also verify the merge using `log`, so that, we may ensure everything is okay.
+
 ```bash
 # download latest changes i.e. commits
-$ git remote update -p
-# update the local branch
+# note: here <remote-name> is optional, if it is not specified
+#       then, all remote will be updated i.e. new commits will
+#       be fetched
+$ git remote update <remote-name> -p
+# update the local branch with new commits from its upstream
+# in a fast forward only
+# note: we're trying to avoid creating new commits
 $ git merge --ff-only @{u}
 # if the above fails, that means, local branch and remote branch both has
 # received commits after being seperated from common commit
