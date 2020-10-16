@@ -59,3 +59,48 @@ To know details about this procedure, please take a look at the following links:
 2. [What exactly does git's “rebase --preserve-merges” do (and why?)](https://stackoverflow.com/questions/15915430/what-exactly-does-gits-rebase-preserve-merges-do-and-why)
   
 In the light of the above discussions, its certain that, this procedure is much better and safe to use compared to `git pull --rebase`, specially when care about merge commits and a cleaner and proper history record.
+
+
+### Merging pull request without merge commits
+Sometimes, for the sake of clarity and readability in our git history, we want to merge pull request without a merge commit.  
+  
+To do this, we can creating a new local branch from the pull request branch using `git fetch <pr-remote-url> <pr-remote-branch>:<pr-local-branch>` command, and setting the upstream of `<pr-local-branch>` to `<remote>/<remote-branch>`. It gives us the ability to rebase with preserve merges to keep a clean history.  
+  
+Note: Here,
+1. `<pr-remote-url>` stands for pull requester's repository url
+2. `<pr-remote-branch>` stands for pull requester's repository's branch i.e. feature branch
+3. `<pr-local-branch>` denotes the local branch where we'll be testing the new feature and rebasing
+4. `<remote>` stands for original remote repo to where pull request has been sent.
+5. `<remote-branch>` denotes the remote branch where pull request is going to be merged.
+6. `<local-branch>` denotes the local branch which is coordinated with `<remote>/<remote-branch>`
+
+
+```bash
+# fetch from requester's remote repo
+$ git fetch <pr-remote-url> <pr-remote-branch>:<pr-local-branch>
+# checkout to pr local branch
+$ git checkout <pr-local-branch>
+# set upstream of branch <pr-local-branch> to appropriate remote repo branch
+$ git branch -u <remote>/<remote-branch>
+# > this step is optional
+# > check again to ensure if upstream is set properly or not using
+$ git branch -vv
+# fetch remotes changes
+$ git remote update <remote> -p
+# update the local branch with new commits from it's upstream in a fast forward
+# manner, cause we're trying to avoid new commits
+$ git merge --ff-only @{u}
+# if the above fails, that means, local branch and remote branch both has
+# received commits after being seperated from common commit
+# note: -p stands for --preserve-merges which ensures merge histories stay in order
+$ git rebase -p @{u}
+# its better to review the results to push changes to remote if you use git rebase -p @{u}
+$ git log --graph --oneline --decorate --date-order --color --boundary @{u}..
+
+# after completing pull request merge properly, we can now update <remote>/<remote-branch>
+$ git checkout <local-branch>
+# now, merge the changes
+$ git merge <pr-local-branch>
+# now, push the changes to remote
+$ git push <remote> <remote-branch>
+```
